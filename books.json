@@ -1,0 +1,56 @@
+{
+  "9": {
+    "Mathematics": ["Mathematics (NCERT)"],
+    "Science": ["Science (NCERT)"],
+    "Social Science": ["Contemporary India I (Geography)", "Democratic Politics I (Civics)", "India and the Contemporary World I (History)", "Economics (NCERT)"],
+    "English": ["Beehive (Literature)", "Moments (Supplementary)", "Words and Expressions I (Workbook)"],
+    "Hindi": ["Kshitij I (Kshitij)", "Sparsh I (Sparsh)", "Sanchayan I (Sanchayan)", "Kritika I (Kritika)"],
+    "Sanskrit": ["Shemushi I (Sanskrit)"],
+    "Computer Science": ["Information Technology (NCERT)"]
+  },
+  "10": {
+    "Mathematics": ["Mathematics (NCERT)", "Mathematics Basic (NCERT)"],
+    "Science": ["Science (NCERT)"],
+    "Social Science": ["Contemporary India II (Geography)", "Democratic Politics II (Civics)", "India and the Contemporary World II (History)", "Understanding Economic Development (Economics)"],
+    "English": ["First Flight (Literature)", "Footprints Without Feet (Supplementary)", "Words and Expressions II (Workbook)"],
+    "Hindi": ["Kshitij II (Kshitij)", "Sparsh II (Sparsh)", "Sanchayan II (Sanchayan)", "Kritika II (Kritika)"],
+    "Sanskrit": ["Shemushi II (Sanskrit)"],
+    "Computer Science": ["Information Technology (NCERT)"]
+  },
+  "11": {
+    "Mathematics": ["Mathematics Part I (NCERT)", "Mathematics Part II (NCERT)"],
+    "Physics": ["Physics Part I (NCERT)", "Physics Part II (NCERT)"],
+    "Chemistry": ["Chemistry Part I (NCERT)", "Chemistry Part II (NCERT)"],
+    "Biology": ["Biology (NCERT)"],
+    "Computer Science": ["Computer Science with Python (NCERT)", "Informatics Practices (NCERT)"],
+    "English": ["Hornbill (Literature)", "Snapshots (Supplementary)", "Woven Words (Elective)"],
+    "Hindi": ["Aroh I (Core)", "Vitan I (Elective)", "Antral I (Elective)", "Antra I (Elective)"],
+    "Economics": ["Indian Economic Development (NCERT)", "Statistics for Economics (NCERT)"],
+    "Accountancy": ["Accountancy Part I (NCERT)", "Accountancy Part II (NCERT)"],
+    "Business Studies": ["Business Studies (NCERT)"],
+    "History": ["Themes in World History (NCERT)"],
+    "Geography": ["Fundamentals of Physical Geography (NCERT)", "India Physical Environment (NCERT)"],
+    "Political Science": ["Political Theory (NCERT)", "Indian Constitution at Work (NCERT)"],
+    "Psychology": ["Introduction to Psychology (NCERT)"],
+    "Sociology": ["Introducing Sociology (NCERT)", "Understanding Society (NCERT)"],
+    "Physical Education": ["Physical Education (NCERT)"]
+  },
+  "12": {
+    "Mathematics": ["Mathematics Part I (NCERT)", "Mathematics Part II (NCERT)"],
+    "Physics": ["Physics Part I (NCERT)", "Physics Part II (NCERT)"],
+    "Chemistry": ["Chemistry Part I (NCERT)", "Chemistry Part II (NCERT)"],
+    "Biology": ["Biology (NCERT)"],
+    "Computer Science": ["Computer Science with Python (NCERT)", "Informatics Practices (NCERT)"],
+    "English": ["Flamingo (Literature)", "Vistas (Supplementary)", "Kaleidoscope (Elective)"],
+    "Hindi": ["Aroh II (Core)", "Vitan II (Elective)", "Antral II (Elective)", "Antra II (Elective)"],
+    "Economics": ["Introductory Macroeconomics (NCERT)", "Indian Economic Development (NCERT)"],
+    "Accountancy": ["Accountancy Part I (NCERT)", "Accountancy Part II (NCERT)"],
+    "Business Studies": ["Business Studies Part I (NCERT)", "Business Studies Part II (NCERT)"],
+    "History": ["Themes in Indian History Part I (NCERT)", "Themes in Indian History Part II (NCERT)", "Themes in Indian History Part III (NCERT)"],
+    "Geography": ["Fundamentals of Human Geography (NCERT)", "India People and Economy (NCERT)"],
+    "Political Science": ["Contemporary World Politics (NCERT)", "Politics in India Since Independence (NCERT)"],
+    "Psychology": ["Psychology (NCERT)"],
+    "Sociology": ["Indian Society (NCERT)", "Social Change and Development in India (NCERT)"],
+    "Physical Education": ["Physical Education (NCERT)"]
+  }
+}
