@@ -268,22 +268,43 @@ tr:hover td{background:var(--bg);}
 
 <div class="toast" id="toast"></div>
 
+<!-- ONLY SHOWING IMPORTANT CHANGES — KEEP YOUR DESIGN SAME -->
+
 <script>
 // =====================
 // CONFIG
 // =====================
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbw9Gn-SO5_hZcIuszfF1ciOCf0ZjMMbTc49eBpIDX4j8uvy9Xwjd88dLmF2QW02AB2AxA/exec";
 
-// ✅ LOAD FROM JSON
+// =====================
+// GLOBALS
+// =====================
 let BD = {};
+let allListings = [];
 
 // =====================
 // LOAD JSON DATA
 // =====================
 async function loadBooksData() {
   try {
+    // show loading state
+    const clsSelect = document.getElementById('f-class');
+    clsSelect.innerHTML = '<option>Loading...</option>';
+    clsSelect.disabled = true;
+
     const res = await fetch("books.json");
     BD = await res.json();
+
+    // restore class options
+    clsSelect.innerHTML = `
+      <option value="">Select class</option>
+      <option>9</option>
+      <option>10</option>
+      <option>11</option>
+      <option>12</option>
+    `;
+    clsSelect.disabled = false;
+
     console.log("Books loaded ✅");
   } catch (e) {
     console.error("Error loading books.json", e);
@@ -327,8 +348,7 @@ function updateSubjects() {
   sub.disabled = false;
   bk.disabled = true;
 
-  const subjects = BD[cls];
-  for (let s in subjects) {
+  for (let s in BD[cls]) {
     const option = document.createElement("option");
     option.value = s;
     option.textContent = s;
@@ -376,6 +396,10 @@ async function submitDonation() {
 
   if(!name||!phone||!cls||!subject||!book||!condition||!city){
     showToast('Fill all fields'); return;
+  }
+
+  if(!/^\d{10}$/.test(phone)){
+    showToast('Invalid phone'); return;
   }
 
   const data={
@@ -440,8 +464,7 @@ function showToast(msg) {
 // =====================
 // INIT
 // =====================
-let allListings = [];
-loadBooksData();   // 🔥 IMPORTANT
+loadBooksData();   // 🔥 critical
 loadStats();
 
 </script>
