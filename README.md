@@ -11,8 +11,8 @@ Donate your old NCERT books. Find the ones you need. Earn points. Pay nothing.
 
 <br/>
 
-[![Live Site](https://img.shields.io/badge/🌐%20Live%20Site-divyansh2453.github.io/kitabdaan-2d6a4f?style=for-the-badge)](https://divyansh2453.github.io/kitabdaan/)
-[![Made with Love](https://img.shields.io/badge/Made%20with-❤️%20for%20Students-e88c4a?style=for-the-badge)](https://divyansh2453.github.io/kitabdaan/)
+[![Live Site](https://img.shields.io/badge/🌐%20Live%20Site-View%20KitabDaan-2d6a4f?style=for-the-badge)](https://your-username.github.io/kitabdaan/)
+[![Made with Love](https://img.shields.io/badge/Made%20with-❤️%20for%20Students-e88c4a?style=for-the-badge)](#)
 
 <br/>
 
@@ -120,7 +120,7 @@ Replace it with your Web App URL from Step 2.
 ### 4. (Optional) Change the Admin Password
 
 ```js
-const ADMIN_PASSWORD = "kitabdaan2024"; // ← change this
+const ADMIN_PASSWORD = "your-strong-password-here"; // ← change this
 ```
 
 > ⚠️ **Do not commit your real password to a public GitHub repository.**
@@ -225,7 +225,7 @@ This project is licensed under the **MIT License** — free to use, modify, and 
 
 *Built with ❤️ for students who believe knowledge should be free.*
 
-[![GitHub stars](https://img.shields.io/github/stars/divyansh2453/kitabdaan?style=social)](https://github.com/divyansh2453/kitabdaan)
-[![GitHub forks](https://img.shields.io/github/forks/divyansh2453/kitabdaan?style=social)](https://github.com/divyansh2453/kitabdaan/fork)
+[![GitHub stars](https://img.shields.io/github/stars/your-username/kitabdaan?style=social)](https://github.com/your-username/kitabdaan)
+[![GitHub forks](https://img.shields.io/github/forks/your-username/kitabdaan?style=social)](https://github.com/your-username/kitabdaan/fork)
 
 </div>
