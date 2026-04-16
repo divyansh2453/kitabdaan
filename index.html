@@ -269,12 +269,26 @@ tr:hover td{background:var(--bg);}
 <div class="toast" id="toast"></div>
 
 <script>
+// =====================
+// CONFIG
+// =====================
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbw9Gn-SO5_hZcIuszfF1ciOCf0ZjMMbTc49eBpIDX4j8uvy9Xwjd88dLmF2QW02AB2AxA/exec";
-const ADMIN_PASS = "kitab2024";
 
-let allListings = [];
-let activeCat = 'all';
-let pendingRedeem = null;
+// ✅ LOAD FROM JSON
+let BD = {};
+
+// =====================
+// LOAD JSON DATA
+// =====================
+async function loadBooksData() {
+  try {
+    const res = await fetch("books.json");
+    BD = await res.json();
+    console.log("Books loaded ✅");
+  } catch (e) {
+    console.error("Error loading books.json", e);
+  }
+}
 
 // =====================
 // STORAGE
@@ -289,13 +303,66 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
 
-  if(id==='browse'){ loadListings(); populateSubjectFilter(); }
+  if(id==='browse'){ loadListings(); }
   if(id==='home') loadStats();
-  if(id==='rewards'){ refreshPtsUI(); renderRewards(activeCat); }
 }
 
 // =====================
-// ✅ SUBMIT (FINAL FIX)
+// SUBJECT DROPDOWN
+// =====================
+function updateSubjects() {
+  const cls = document.getElementById('f-class').value;
+  const sub = document.getElementById('f-subject');
+  const bk = document.getElementById('f-book');
+
+  sub.innerHTML = '<option value="">Select subject</option>';
+  bk.innerHTML = '<option value="">Select book</option>';
+
+  if (!cls || !BD[cls]) {
+    sub.disabled = true;
+    bk.disabled = true;
+    return;
+  }
+
+  sub.disabled = false;
+  bk.disabled = true;
+
+  const subjects = BD[cls];
+  for (let s in subjects) {
+    const option = document.createElement("option");
+    option.value = s;
+    option.textContent = s;
+    sub.appendChild(option);
+  }
+}
+
+// =====================
+// BOOK DROPDOWN
+// =====================
+function updateBooks() {
+  const cls = document.getElementById('f-class').value;
+  const sub = document.getElementById('f-subject').value;
+  const bk = document.getElementById('f-book');
+
+  bk.innerHTML = '<option value="">Select book</option>';
+
+  if (!cls || !sub || !BD[cls]) {
+    bk.disabled = true;
+    return;
+  }
+
+  bk.disabled = false;
+
+  BD[cls][sub].forEach(b => {
+    const option = document.createElement("option");
+    option.value = b;
+    option.textContent = b;
+    bk.appendChild(option);
+  });
+}
+
+// =====================
+// SUBMIT
 // =====================
 async function submitDonation() {
   const name=document.getElementById('f-name').value.trim();
@@ -311,13 +378,6 @@ async function submitDonation() {
     showToast('Fill all fields'); return;
   }
 
-  if(!/^\d{10}$/.test(phone)){
-    showToast('Invalid phone number'); return;
-  }
-
-  const btn=document.querySelector('.submit-btn');
-  btn.disabled=true; btn.textContent='Submitting...';
-
   const data={
     id:Date.now(),
     name,phone,
@@ -328,59 +388,33 @@ async function submitDonation() {
     date:new Date().toLocaleDateString('en-IN')
   };
 
-  // ✅ SEND TO GOOGLE SHEET
   try{
     await fetch(SHEET_URL,{
       method:'POST',
-      headers:{
-        'Content-Type':'text/plain;charset=utf-8'
-      },
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
       body:JSON.stringify(data)
     });
-  }catch(e){
-    console.log("Sheet error:", e);
-  }
+  }catch(e){}
 
-  // ✅ ALWAYS SAVE LOCALLY (fallback)
   const listings=getListings();
   listings.unshift(data);
   saveListings(listings);
 
-  showToast('Book listed successfully!');
-
-  // reset form
-  ['f-name','f-phone','f-city','f-note'].forEach(id=>document.getElementById(id).value='');
-  ['f-class','f-subject','f-book','f-condition'].forEach(id=>document.getElementById(id).value='');
-
-  document.getElementById('f-subject').disabled=true;
-  document.getElementById('f-book').disabled=true;
-
-  btn.disabled=false;
-  btn.textContent='List my book for free';
+  showToast('Book listed!');
 }
 
 // =====================
-// ✅ LOAD (FINAL FIX)
+// LOAD LISTINGS
 // =====================
 async function loadListings() {
   try{
     const r=await fetch(SHEET_URL+"?t="+Date.now());
-    const data=await r.json();
-
-    if(Array.isArray(data)){
-      allListings=data;
-      saveListings(data);
-    }else{
-      allListings=getListings();
-    }
-
+    allListings=await r.json();
   }catch(e){
-    console.log("Fetch error:", e);
     allListings=getListings();
   }
 
   renderCards(allListings);
-  updateBrowseCount(allListings);
 }
 
 // =====================
@@ -406,7 +440,10 @@ function showToast(msg) {
 // =====================
 // INIT
 // =====================
+let allListings = [];
+loadBooksData();   // 🔥 IMPORTANT
 loadStats();
+
 </script>
 </body>
 </html>
