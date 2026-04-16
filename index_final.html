@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KitabDaan — Free Book Exchange</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#f7f5f0;--surface:#fff;--border:#e2ddd5;--text:#1a1915;--muted:#7a7568;--accent:#2d6a4f;--accent-light:#e8f4ee;--accent-dark:#1b4332;--warn:#b45309;--warn-light:#fef3c7;--danger:#9b1c1c;--danger-light:#fef2f2;--gold:#92600a;--gold-light:#fef9ec;--gold-mid:#f59e0b;--radius:10px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'Instrument Serif',serif;font-size:22px;color:var(--accent-dark);cursor:pointer;user-select:none;}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;gap:4px;align-items:center;}
+.nav-btn{background:none;border:none;cursor:pointer;padding:7px 14px;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--muted);transition:background .15s,color .15s;}
+.nav-btn:hover{background:var(--accent-light);color:var(--accent-dark);}
+.nav-btn.primary{background:var(--accent);color:#fff;font-weight:500;}
+.nav-btn.primary:hover{background:var(--accent-dark);}
+.pts-badge{display:flex;align-items:center;gap:5px;background:var(--gold-light);border:1px solid #f6d860;border-radius:99px;padding:4px 12px;font-size:13px;font-weight:500;color:var(--gold);cursor:pointer;}
+.page{display:none;padding:32px 24px;max-width:960px;margin:0 auto;}
+.page.active{display:block;}
+.hero{text-align:center;padding:52px 20px 36px;}
+.hero h1{font-family:'Instrument Serif',serif;font-size:clamp(34px,6vw,54px);color:var(--accent-dark);line-height:1.15;margin-bottom:14px;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero p{color:var(--muted);font-size:16px;max-width:480px;margin:0 auto 28px;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:var(--radius);border:1.5px solid transparent;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:all .15s;text-decoration:none;}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-outline{background:var(--surface);color:var(--accent-dark);border-color:var(--border);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-gold{background:var(--gold-mid);color:#fff;border-color:var(--gold-mid);}
+.btn-gold:hover{background:#d97706;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;}
+.stat-num{font-family:'Instrument Serif',serif;font-size:30px;color:var(--accent);}
+.stat-label{font-size:13px;color:var(--muted);}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.section-head h2{font-family:'Instrument Serif',serif;font-size:26px;}
+.tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:99px;font-weight:500;}
+.tag-green{background:var(--accent-light);color:var(--accent-dark);}
+.tag-taken{background:#f3f4f6;color:#6b7280;}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:13px;font-weight:500;}
+input,select,textarea{font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--text);transition:border-color .15s,box-shadow .15s;width:100%;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,106,79,.12);}
+textarea{resize:vertical;min-height:80px;}
+.form-hint{font-size:12px;color:var(--muted);}
+.submit-btn{margin-top:8px;width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:background .15s;}
+.submit-btn:hover{background:var(--accent-dark);}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;}
+.filter-bar{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;}
+.filter-bar select{flex:1;min-width:140px;max-width:200px;}
+.filter-bar input{flex:2;min-width:200px;}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:14px;}
+.book-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s,transform .15s;}
+.book-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.09);transform:translateY(-1px);}
+.book-card.taken{opacity:.5;}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.card-title{font-weight:500;font-size:14px;line-height:1.35;}
+.card-class{font-size:12px;color:var(--muted);margin-top:3px;}
+.card-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.pill{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:500;}
+.pill-good{background:var(--accent-light);color:var(--accent-dark);}
+.pill-acceptable{background:var(--warn-light);color:var(--warn);}
+.pill-poor{background:var(--danger-light);color:var(--danger);}
+.card-city{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.card-date{font-size:11px;color:#bbb;margin-left:auto;}
+.wa-btn{display:flex;align-items:center;gap:6px;background:#25d366;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;text-decoration:none;transition:background .15s;width:100%;justify-content:center;}
+.wa-btn:hover{background:#128c7e;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);grid-column:1/-1;}
+.loading{text-align:center;padding:40px;color:var(--muted);}
+/* REWARDS */
+.rewards-hero{background:linear-gradient(135deg,#1b4332 0%,#2d6a4f 100%);border-radius:16px;padding:32px;color:#fff;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.rewards-hero h2{font-family:'Instrument Serif',serif;font-size:28px;margin-bottom:6px;}
+.rewards-hero p{opacity:.8;font-size:14px;max-width:340px;}
+.pts-big .num{font-family:'Instrument Serif',serif;font-size:52px;color:#f6d860;line-height:1;text-align:center;}
+.pts-big .lbl{font-size:13px;opacity:.75;margin-top:4px;text-align:center;}
+.hiw{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+.hiw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;}
+.hiw-icon{font-size:24px;margin-bottom:8px;}
+.hiw-title{font-weight:500;font-size:14px;}
+.hiw-desc{font-size:12px;color:var(--muted);margin-top:4px;}
+.rewards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;}
+.reward-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s;}
+.reward-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.09);transform:translateY(-1px);}
+.reward-cover{height:150px;display:flex;align-items:center;justify-content:center;font-size:52px;}
+.reward-body{padding:14px;flex:1;display:flex;flex-direction:column;gap:6px;}
+.reward-title{font-weight:500;font-size:13px;line-height:1.35;}
+.reward-author{font-size:12px;color:var(--muted);}
+.reward-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px;}
+.reward-pts{font-size:13px;font-weight:500;color:var(--gold);display:flex;align-items:center;gap:4px;}
+.redeem-btn{background:var(--gold-mid);color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:background .15s;}
+.redeem-btn:hover{background:#d97706;}
+.redeem-btn:disabled{background:#d1d5db;color:#9ca3af;cursor:not-allowed;}
+.cat-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.cat-tab{background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 16px;font-size:13px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--muted);}
+.cat-tab:hover,.cat-tab.active{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
+/* ADMIN */
+.admin-login{max-width:360px;margin:60px auto;}
+.admin-table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-weight:500;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg);}
+.action-btns{display:flex;gap:6px;}
+.act-btn{border:none;border-radius:6px;padding:5px 10px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;}
+.act-btn:hover{opacity:.8;}
+.btn-taken{background:var(--warn-light);color:var(--warn);}
+.btn-delete{background:var(--danger-light);color:var(--danger);}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:16px;padding:28px;max-width:400px;width:90%;text-align:center;}
+.modal h3{font-family:'Instrument Serif',serif;font-size:22px;margin-bottom:10px;}
+.modal p{color:var(--muted);font-size:14px;margin-bottom:20px;line-height:1.6;}
+.modal-btns{display:flex;gap:10px;justify-content:center;}
+.modal-icon{font-size:40px;margin-bottom:12px;}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--accent-dark);color:#fff;padding:12px 24px;border-radius:99px;font-size:14px;font-weight:500;transition:transform .3s;z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr;}.stats-row{grid-template-columns:1fr 1fr;}.hiw{grid-template-columns:1fr;}.rewards-hero{flex-direction:column;text-align:center;}nav{padding:0 14px;}.page{padding:20px 14px;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" id="nav-logo">Kitab<span>Daan</span></div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="showPage('browse')">Browse</button>
+    <button class="nav-btn" onclick="showPage('rewards')">Rewards</button>
+    <button class="nav-btn primary" onclick="showPage('donate')">+ Donate</button>
+    <div class="pts-badge" onclick="showPage('rewards')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span id="nav-pts">0 pts</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <h1>Give books a<br/><em>second life.</em></h1>
+    <p>Donate your old 9th–12th NCERT books or find ones you need — free. Earn points when someone takes your book.</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="showPage('donate')">Donate a book</button>
+      <button class="btn btn-outline" onclick="showPage('browse')">Find a book</button>
+      <button class="btn btn-gold" onclick="showPage('rewards')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Rewards store
+      </button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">books listed</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-available">0</div><div class="stat-label">available now</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-taken">0</div><div class="stat-label">books donated</div></div>
+  </div>
+</div>
+
+<!-- DONATE -->
+<div id="page-donate" class="page">
+  <div class="section-head"><h2>Donate a book</h2></div>
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="form-group"><label>Your name</label><input type="text" id="f-name" placeholder="e.g. Divyansh Singh"/></div>
+      <div class="form-group"><label>WhatsApp number</label><input type="tel" id="f-phone" placeholder="10-digit number" maxlength="10"/></div>
+      <div class="form-group">
+        <label>Class</label>
+        <select id="f-class" onchange="updateSubjects()">
+          <option value="">Select class</option>
+          <option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Subject</label><select id="f-subject" onchange="updateBooks()" disabled><option value="">Select subject</option></select></div>
+      <div class="form-group full"><label>Book title</label><select id="f-book" disabled><option value="">Select book</option></select></div>
+      <div class="form-group">
+        <label>Condition</label>
+        <select id="f-condition"><option value="">Select condition</option><option>Good</option><option>Acceptable</option><option>Poor</option></select>
+      </div>
+      <div class="form-group"><label>City / Area</label><input type="text" id="f-city" placeholder="e.g. Karimpur, Punjab"/></div>
+      <div class="form-group full"><label>Note <span style="font-weight:400;color:var(--muted)">(optional)</span></label><textarea id="f-note" placeholder="Pickup preference, extra details..."></textarea></div>
+    </div>
+    <button class="submit-btn" onclick="submitDonation()">List my book for free</button>
+    <p class="form-hint" style="margin-top:10px;text-align:center">You earn <strong>10 points</strong> when your book is marked as taken by admin.</p>
+  </div>
+</div>
+
+<!-- BROWSE -->
+<div id="page-browse" class="page">
+  <div class="section-head"><h2>Available books</h2><span id="browse-count" class="tag tag-green">Loading...</span></div>
+  <div class="filter-bar">
+    <select id="filter-class" onchange="applyFilters()"><option value="">All classes</option><option>9</option><option>10</option><option>11</option><option>12</option></select>
+    <select id="filter-subject" onchange="applyFilters()"><option value="">All subjects</option></select>
+    <input id="filter-search" placeholder="Search book name or city..." oninput="applyFilters()"/>
+  </div>
+  <div id="books-grid" class="books-grid"><div class="loading">Loading listings...</div></div>
+</div>
+
+<!-- REWARDS -->
+<div id="page-rewards" class="page">
+  <div class="rewards-hero">
+    <div>
+      <h2>Book Lover Rewards</h2>
+      <p>Earn 10 points every time someone takes your donated book. Spend them on popular books — yours to keep.</p>
+    </div>
+    <div class="pts-big">
+      <div class="num" id="pts-big">0</div>
+      <div class="lbl">your points</div>
+    </div>
+  </div>
+  <div class="hiw">
+    <div class="hiw-card"><div class="hiw-icon">📚</div><div class="hiw-title">1. Donate</div><div class="hiw-desc">List your old 9th–12th book on KitabDaan</div></div>
+    <div class="hiw-card"><div class="hiw-icon">✅</div><div class="hiw-title">2. Book gets taken</div><div class="hiw-desc">Admin marks it as taken — you get 10 points</div></div>
+    <div class="hiw-card"><div class="hiw-icon">🎁</div><div class="hiw-title">3. Redeem</div><div class="hiw-desc">Use points to claim books from our catalogue</div></div>
+  </div>
+  <div class="section-head"><h2>Redeem catalogue</h2></div>
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="filterRewards('all',this)">All</button>
+    <button class="cat-tab" onclick="filterRewards('fiction',this)">Fiction</button>
+    <button class="cat-tab" onclick="filterRewards('selfhelp',this)">Self-help</button>
+    <button class="cat-tab" onclick="filterRewards('science',this)">Science</button>
+    <button class="cat-tab" onclick="filterRewards('biography',this)">Biography</button>
+  </div>
+  <div class="rewards-grid" id="rewards-grid"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <div id="admin-login-wrap">
+    <div class="admin-login">
+      <h2 style="font-family:'Instrument Serif',serif;margin-bottom:20px">Admin panel</h2>
+      <div class="form-card">
+        <div class="form-group"><label>Password</label><input type="password" id="admin-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')adminLogin()"/></div>
+        <button class="submit-btn" style="margin-top:14px" onclick="adminLogin()">Login</button>
+      </div>
+    </div>
+  </div>
+  <div id="admin-panel" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <h2 style="font-family:'Instrument Serif',serif">All listings</h2>
+      <button class="btn btn-outline" onclick="adminLogout()" style="font-size:13px">Logout</button>
+    </div>
+    <div class="admin-table-wrap">
+      <table><thead><tr><th>#</th><th>Name</th><th>Class</th><th>Subject</th><th>Book</th><th>Condition</th><th>City</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="admin-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- Redeem confirm modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon">🎉</div>
+    <h3 id="modal-title">Confirm redeem</h3>
+    <p id="modal-desc"></p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-gold" id="modal-ok">Redeem</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbw9Gn-SO5_hZcIuszfF1ciOCf0ZjMMbTc49eBpIDX4j8uvy9Xwjd88dLmF2QW02AB2AxA/exec";
+const ADMIN_PASS = "kitab2024";
+
+let allListings = [];
+let activeCat = 'all';
+let pendingRedeem = null;
+
+// =====================
+// STORAGE
+// =====================
+const getListings = () => JSON.parse(localStorage.getItem('kd_listings')||'[]');
+const saveListings = d => localStorage.setItem('kd_listings', JSON.stringify(d));
+
+// =====================
+// PAGE NAV
+// =====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+
+  if(id==='browse'){ loadListings(); populateSubjectFilter(); }
+  if(id==='home') loadStats();
+  if(id==='rewards'){ refreshPtsUI(); renderRewards(activeCat); }
+}
+
+// =====================
+// ✅ SUBMIT (FINAL FIX)
+// =====================
+async function submitDonation() {
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const cls=document.getElementById('f-class').value;
+  const subject=document.getElementById('f-subject').value;
+  const book=document.getElementById('f-book').value;
+  const condition=document.getElementById('f-condition').value;
+  const city=document.getElementById('f-city').value.trim();
+  const note=document.getElementById('f-note').value.trim();
+
+  if(!name||!phone||!cls||!subject||!book||!condition||!city){
+    showToast('Fill all fields'); return;
+  }
+
+  if(!/^\d{10}$/.test(phone)){
+    showToast('Invalid phone number'); return;
+  }
+
+  const btn=document.querySelector('.submit-btn');
+  btn.disabled=true; btn.textContent='Submitting...';
+
+  const data={
+    id:Date.now(),
+    name,phone,
+    class:cls,
+    subject,book,
+    condition,city,note,
+    status:'available',
+    date:new Date().toLocaleDateString('en-IN')
+  };
+
+  // ✅ SEND TO GOOGLE SHEET
+  try{
+    await fetch(SHEET_URL,{
+      method:'POST',
+      headers:{
+        'Content-Type':'text/plain;charset=utf-8'
+      },
+      body:JSON.stringify(data)
+    });
+  }catch(e){
+    console.log("Sheet error:", e);
+  }
+
+  // ✅ ALWAYS SAVE LOCALLY (fallback)
+  const listings=getListings();
+  listings.unshift(data);
+  saveListings(listings);
+
+  showToast('Book listed successfully!');
+
+  // reset form
+  ['f-name','f-phone','f-city','f-note'].forEach(id=>document.getElementById(id).value='');
+  ['f-class','f-subject','f-book','f-condition'].forEach(id=>document.getElementById(id).value='');
+
+  document.getElementById('f-subject').disabled=true;
+  document.getElementById('f-book').disabled=true;
+
+  btn.disabled=false;
+  btn.textContent='List my book for free';
+}
+
+// =====================
+// ✅ LOAD (FINAL FIX)
+// =====================
+async function loadListings() {
+  try{
+    const r=await fetch(SHEET_URL+"?t="+Date.now());
+    const data=await r.json();
+
+    if(Array.isArray(data)){
+      allListings=data;
+      saveListings(data);
+    }else{
+      allListings=getListings();
+    }
+
+  }catch(e){
+    console.log("Fetch error:", e);
+    allListings=getListings();
+  }
+
+  renderCards(allListings);
+  updateBrowseCount(allListings);
+}
+
+// =====================
+// STATS
+// =====================
+function loadStats() {
+  const data=getListings();
+  document.getElementById('stat-total').textContent=data.length;
+  document.getElementById('stat-available').textContent=data.filter(d=>d.status!=='taken').length;
+  document.getElementById('stat-taken').textContent=data.filter(d=>d.status==='taken').length;
+}
+
+// =====================
+// TOAST
+// =====================
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// =====================
+// INIT
+// =====================
+loadStats();
+</script>
+</body>
+</html>
