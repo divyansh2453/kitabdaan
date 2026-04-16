@@ -130,7 +130,7 @@ tr:hover td{background:var(--bg);}
 <body>
 
 <nav>
-  <div class="nav-logo" id="nav-logo">Kitab<span>Daan</span></div>
+  <div class="nav-logo" id="nav-logo" onclick="showPage('home')">Kitab<span>Daan</span></div>
   <div class="nav-links">
     <button class="nav-btn" onclick="showPage('browse')">Browse</button>
     <button class="nav-btn" onclick="showPage('rewards')">Rewards</button>
@@ -186,7 +186,7 @@ tr:hover td{background:var(--bg);}
       <div class="form-group"><label>City / Area</label><input type="text" id="f-city" placeholder="e.g. Karimpur, Punjab"/></div>
       <div class="form-group full"><label>Note <span style="font-weight:400;color:var(--muted)">(optional)</span></label><textarea id="f-note" placeholder="Pickup preference, extra details..."></textarea></div>
     </div>
-    <button class="submit-btn" onclick="submitDonation()">List my book for free</button>
+    <button class="submit-btn" id="donate-btn" onclick="submitDonation()">List my book for free</button>
     <p class="form-hint" style="margin-top:10px;text-align:center">You earn <strong>10 points</strong> when your book is marked as taken by admin.</p>
   </div>
 </div>
@@ -268,13 +268,12 @@ tr:hover td{background:var(--bg);}
 
 <div class="toast" id="toast"></div>
 
-<!-- ONLY SHOWING IMPORTANT CHANGES — KEEP YOUR DESIGN SAME -->
-
 <script>
 // =====================
 // CONFIG
 // =====================
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbw9Gn-SO5_hZcIuszfF1ciOCf0ZjMMbTc49eBpIDX4j8uvy9Xwjd88dLmF2QW02AB2AxA/exec";
+const ADMIN_PASSWORD = "kitabdaan2024"; // ← change this to your real password
 
 // =====================
 // GLOBALS
@@ -283,49 +282,82 @@ let BD = {};
 let allListings = [];
 
 // =====================
-// LOAD JSON DATA
+// REWARDS CATALOGUE
 // =====================
-async function loadBooksData() {
-  try {
-    // show loading state
-    const clsSelect = document.getElementById('f-class');
-    clsSelect.innerHTML = '<option>Loading...</option>';
-    clsSelect.disabled = true;
-
-    const res = await fetch("books.json");
-    BD = await res.json();
-
-    // restore class options
-    clsSelect.innerHTML = `
-      <option value="">Select class</option>
-      <option>9</option>
-      <option>10</option>
-      <option>11</option>
-      <option>12</option>
-    `;
-    clsSelect.disabled = false;
-
-    console.log("Books loaded ✅");
-  } catch (e) {
-    console.error("Error loading books.json", e);
-  }
-}
+const REWARDS_CATALOGUE = [
+  { id:'r1', title:'The Alchemist', author:'Paulo Coelho', pts:30, emoji:'✨', cat:'fiction', bg:'#fef9ec' },
+  { id:'r2', title:'Atomic Habits', author:'James Clear', pts:40, emoji:'⚡', cat:'selfhelp', bg:'#e8f4ee' },
+  { id:'r3', title:'A Brief History of Time', author:'Stephen Hawking', pts:35, emoji:'🌌', cat:'science', bg:'#eff6ff' },
+  { id:'r4', title:'Wings of Fire', author:'APJ Abdul Kalam', pts:30, emoji:'🔥', cat:'biography', bg:'#fff1f2' },
+  { id:'r5', title:'The Diary of a Young Girl', author:'Anne Frank', pts:25, emoji:'📖', cat:'biography', bg:'#faf5ff' },
+  { id:'r6', title:'Rich Dad Poor Dad', author:'Robert Kiyosaki', pts:40, emoji:'💰', cat:'selfhelp', bg:'#fef9ec' },
+  { id:'r7', title:'The Hitchhiker\'s Guide', author:'Douglas Adams', pts:30, emoji:'🚀', cat:'fiction', bg:'#eff6ff' },
+  { id:'r8', title:'Surely You\'re Joking, Mr. Feynman', author:'Richard Feynman', pts:35, emoji:'🧪', cat:'science', bg:'#e8f4ee' },
+];
 
 // =====================
-// STORAGE
+// STORAGE HELPERS
 // =====================
-const getListings = () => JSON.parse(localStorage.getItem('kd_listings')||'[]');
+const getListings = () => JSON.parse(localStorage.getItem('kd_listings') || '[]');
 const saveListings = d => localStorage.setItem('kd_listings', JSON.stringify(d));
+const getPoints = () => parseInt(localStorage.getItem('kd_pts') || '0');
+const savePoints = p => {
+  localStorage.setItem('kd_pts', p);
+  updatePts();
+};
+
+// =====================
+// UPDATE POINTS UI
+// =====================
+function updatePts() {
+  const p = getPoints();
+  document.getElementById('nav-pts').textContent = p + ' pts';
+  const big = document.getElementById('pts-big');
+  if (big) big.textContent = p;
+}
 
 // =====================
 // PAGE NAV
 // =====================
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('page-' + id).classList.add('active');
+  if (id === 'browse') loadListings();
+  if (id === 'home') loadStats();
+  if (id === 'rewards') { updatePts(); renderRewards('all'); }
+  if (id === 'admin') renderAdminIfLoggedIn();
+}
 
-  if(id==='browse'){ loadListings(); }
-  if(id==='home') loadStats();
+// =====================
+// LOAD books.json
+// =====================
+async function loadBooksData() {
+  try {
+    const clsSelect = document.getElementById('f-class');
+    clsSelect.innerHTML = '<option>Loading...</option>';
+    clsSelect.disabled = true;
+
+    const res = await fetch('books.json');
+    if (!res.ok) throw new Error('fetch failed');
+    BD = await res.json();
+
+    clsSelect.innerHTML = `
+      <option value="">Select class</option>
+      <option>9</option><option>10</option><option>11</option><option>12</option>
+    `;
+    clsSelect.disabled = false;
+    console.log('Books loaded ✅');
+  } catch (e) {
+    console.error('Error loading books.json', e);
+    // fallback: re-enable with empty BD so user sees a friendly message
+    const clsSelect = document.getElementById('f-class');
+    clsSelect.innerHTML = `
+      <option value="">Select class</option>
+      <option>9</option><option>10</option><option>11</option><option>12</option>
+    `;
+    clsSelect.disabled = false;
+    showToast('Could not load book list — check your connection');
+  }
 }
 
 // =====================
@@ -334,25 +366,25 @@ function showPage(id) {
 function updateSubjects() {
   const cls = document.getElementById('f-class').value;
   const sub = document.getElementById('f-subject');
-  const bk = document.getElementById('f-book');
+  const bk  = document.getElementById('f-book');
 
   sub.innerHTML = '<option value="">Select subject</option>';
-  bk.innerHTML = '<option value="">Select book</option>';
+  bk.innerHTML  = '<option value="">Select book</option>';
 
   if (!cls || !BD[cls]) {
     sub.disabled = true;
-    bk.disabled = true;
+    bk.disabled  = true;
     return;
   }
 
   sub.disabled = false;
-  bk.disabled = true;
+  bk.disabled  = true;
 
   for (let s in BD[cls]) {
-    const option = document.createElement("option");
-    option.value = s;
-    option.textContent = s;
-    sub.appendChild(option);
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sub.appendChild(opt);
   }
 }
 
@@ -362,111 +394,356 @@ function updateSubjects() {
 function updateBooks() {
   const cls = document.getElementById('f-class').value;
   const sub = document.getElementById('f-subject').value;
-  const bk = document.getElementById('f-book');
+  const bk  = document.getElementById('f-book');
 
   bk.innerHTML = '<option value="">Select book</option>';
 
-  if (!cls || !sub || !BD[cls]) {
+  if (!cls || !sub || !BD[cls] || !BD[cls][sub]) {
     bk.disabled = true;
     return;
   }
 
   bk.disabled = false;
-
   BD[cls][sub].forEach(b => {
-    const option = document.createElement("option");
-    option.value = b;
-    option.textContent = b;
-    bk.appendChild(option);
+    const opt = document.createElement('option');
+    opt.value = b;
+    opt.textContent = b;
+    bk.appendChild(opt);
   });
 }
 
 // =====================
-// SUBMIT
+// SUBMIT DONATION
 // =====================
 async function submitDonation() {
-  const name=document.getElementById('f-name').value.trim();
-  const phone=document.getElementById('f-phone').value.trim();
-  const cls=document.getElementById('f-class').value;
-  const subject=document.getElementById('f-subject').value;
-  const book=document.getElementById('f-book').value;
-  const condition=document.getElementById('f-condition').value;
-  const city=document.getElementById('f-city').value.trim();
-  const note=document.getElementById('f-note').value.trim();
+  const name      = document.getElementById('f-name').value.trim();
+  const phone     = document.getElementById('f-phone').value.trim();
+  const cls       = document.getElementById('f-class').value;
+  const subject   = document.getElementById('f-subject').value;
+  const book      = document.getElementById('f-book').value;
+  const condition = document.getElementById('f-condition').value;
+  const city      = document.getElementById('f-city').value.trim();
+  const note      = document.getElementById('f-note').value.trim();
 
-  if(!name||!phone||!cls||!subject||!book||!condition||!city){
-    showToast('Fill all fields'); return;
+  if (!name || !phone || !cls || !subject || !book || !condition || !city) {
+    showToast('Please fill all required fields'); return;
+  }
+  if (!/^\d{10}$/.test(phone)) {
+    showToast('Enter a valid 10-digit phone number'); return;
   }
 
-  if(!/^\d{10}$/.test(phone)){
-    showToast('Invalid phone'); return;
-  }
-
-  const data={
-    id:Date.now(),
-    name,phone,
-    class:cls,
-    subject,book,
-    condition,city,note,
-    status:'available',
-    date:new Date().toLocaleDateString('en-IN')
+  const data = {
+    id: Date.now(),
+    name, phone,
+    class: cls,
+    subject, book,
+    condition, city, note,
+    status: 'available',
+    date: new Date().toLocaleDateString('en-IN')
   };
 
-  try{
-    await fetch(SHEET_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(data)
-    });
-  }catch(e){}
+  const btn = document.getElementById('donate-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
 
-  const listings=getListings();
+  // Send to Google Sheet (fire-and-forget; no-cors so no JSON response expected)
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    });
+  } catch (e) {
+    // silently continue — local save is the fallback
+  }
+
+  const listings = getListings();
   listings.unshift(data);
   saveListings(listings);
 
-  showToast('Book listed!');
+  // Reset form
+  ['f-name','f-phone','f-city','f-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-class').value = '';
+  document.getElementById('f-condition').value = '';
+  updateSubjects(); // resets subject + book dropdowns
+
+  btn.disabled = false;
+  btn.textContent = 'List my book for free';
+
+  showToast('📚 Book listed successfully!');
+  loadStats();
 }
 
 // =====================
-// LOAD LISTINGS
+// LOAD LISTINGS (browse page)
 // =====================
 async function loadListings() {
-  try{
-    const r=await fetch(SHEET_URL+"?t="+Date.now());
-    allListings=await r.json();
-  }catch(e){
-    allListings=getListings();
+  document.getElementById('books-grid').innerHTML = '<div class="loading">Loading listings…</div>';
+  try {
+    const r = await fetch(SHEET_URL + '?t=' + Date.now(), { mode: 'cors' });
+    if (!r.ok) throw new Error('network');
+    allListings = await r.json();
+    saveListings(allListings); // cache locally
+  } catch (e) {
+    allListings = getListings(); // fall back to localStorage
+  }
+  renderCards(allListings);
+  populateBrowseSubjects();
+}
+
+// =====================
+// RENDER BOOK CARDS
+// =====================
+function renderCards(list) {
+  const grid  = document.getElementById('books-grid');
+  const count = document.getElementById('browse-count');
+
+  const available = list.filter(d => d.status !== 'taken');
+  count.textContent = available.length + ' available';
+  count.className   = 'tag ' + (available.length > 0 ? 'tag-green' : 'tag-taken');
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state">No books listed yet. Be the first to donate!</div>';
+    return;
   }
 
-  renderCards(allListings);
+  grid.innerHTML = list.map(d => {
+    const condClass = d.condition === 'Good' ? 'pill-good' : d.condition === 'Acceptable' ? 'pill-acceptable' : 'pill-poor';
+    const waLink    = 'https://wa.me/91' + d.phone + '?text=' + encodeURIComponent('Hi ' + d.name + ', I saw your book "' + d.book + '" (Class ' + d.class + ') on KitabDaan. Is it still available?');
+    return `
+      <div class="book-card${d.status==='taken'?' taken':''}">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${escHtml(d.book)}</div>
+            <div class="card-class">Class ${escHtml(d.class)} · ${escHtml(d.subject)}</div>
+          </div>
+          <span class="tag ${d.status==='taken'?'tag-taken':'tag-green'}">${d.status==='taken'?'Taken':'Available'}</span>
+        </div>
+        <div class="card-meta">
+          <span class="pill ${condClass}">${escHtml(d.condition)}</span>
+          <span class="card-city">📍 ${escHtml(d.city)}</span>
+          <span class="card-date">${escHtml(d.date||'')}</span>
+        </div>
+        ${d.status !== 'taken' ? `<a class="wa-btn" href="${waLink}" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.845L.057 23.885l6.194-1.452A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-4.989-1.365l-.358-.213-3.676.862.924-3.576-.234-.371A9.818 9.818 0 112 12c0-5.42 4.398-9.818 9.818-9.818 5.421 0 9.819 4.398 9.819 9.818 0 5.421-4.398 9.818-9.819 9.818z"/></svg>
+          Contact on WhatsApp
+        </a>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// =====================
+// FILTERS (browse)
+// =====================
+function populateBrowseSubjects() {
+  const sel = document.getElementById('filter-subject');
+  const all = [...new Set(allListings.map(d => d.subject).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All subjects</option>' + all.map(s => `<option>${escHtml(s)}</option>`).join('');
+}
+
+function applyFilters() {
+  const cls    = document.getElementById('filter-class').value;
+  const sub    = document.getElementById('filter-subject').value;
+  const search = document.getElementById('filter-search').value.toLowerCase();
+
+  const filtered = allListings.filter(d => {
+    if (cls && d.class != cls) return false;
+    if (sub && d.subject !== sub) return false;
+    if (search && !d.book.toLowerCase().includes(search) && !d.city.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  renderCards(filtered);
 }
 
 // =====================
 // STATS
 // =====================
 function loadStats() {
-  const data=getListings();
-  document.getElementById('stat-total').textContent=data.length;
-  document.getElementById('stat-available').textContent=data.filter(d=>d.status!=='taken').length;
-  document.getElementById('stat-taken').textContent=data.filter(d=>d.status==='taken').length;
+  const data = getListings();
+  document.getElementById('stat-total').textContent     = data.length;
+  document.getElementById('stat-available').textContent = data.filter(d => d.status !== 'taken').length;
+  document.getElementById('stat-taken').textContent     = data.filter(d => d.status === 'taken').length;
+}
+
+// =====================
+// REWARDS
+// =====================
+function renderRewards(cat) {
+  const pts  = getPoints();
+  const grid = document.getElementById('rewards-grid');
+  const list = cat === 'all' ? REWARDS_CATALOGUE : REWARDS_CATALOGUE.filter(r => r.cat === cat);
+  if (!list.length) { grid.innerHTML = '<div class="empty-state">No rewards in this category yet.</div>'; return; }
+  grid.innerHTML = list.map(r => `
+    <div class="reward-card">
+      <div class="reward-cover" style="background:${r.bg}">${r.emoji}</div>
+      <div class="reward-body">
+        <div class="reward-title">${escHtml(r.title)}</div>
+        <div class="reward-author">${escHtml(r.author)}</div>
+        <div class="reward-footer">
+          <div class="reward-pts">⭐ ${r.pts} pts</div>
+          <button class="redeem-btn" ${pts < r.pts ? 'disabled' : ''} onclick="confirmRedeem('${r.id}')">
+            ${pts < r.pts ? 'Need more' : 'Redeem'}
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterRewards(cat, el) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderRewards(cat);
+}
+
+function confirmRedeem(id) {
+  const r = REWARDS_CATALOGUE.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('modal-icon').textContent  = r.emoji;
+  document.getElementById('modal-title').textContent = 'Redeem "' + r.title + '"?';
+  document.getElementById('modal-desc').textContent  = 'This will use ' + r.pts + ' of your points. You currently have ' + getPoints() + ' pts.';
+  document.getElementById('modal-ok').onclick = () => doRedeem(id);
+  document.getElementById('modal').classList.add('open');
+}
+
+function doRedeem(id) {
+  const r   = REWARDS_CATALOGUE.find(x => x.id === id);
+  const pts = getPoints();
+  if (!r || pts < r.pts) { showToast('Not enough points!'); closeModal(); return; }
+  savePoints(pts - r.pts);
+  closeModal();
+  showToast('🎉 Redeemed "' + r.title + '"! We\'ll contact you soon.');
+  renderRewards('all');
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.cat-tab').classList.add('active');
+}
+
+// =====================
+// MODAL
+// =====================
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
+
+// =====================
+// ADMIN
+// =====================
+function renderAdminIfLoggedIn() {
+  if (sessionStorage.getItem('kd_admin') === '1') showAdminPanel();
+}
+
+function adminLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  if (pass === ADMIN_PASSWORD) {
+    sessionStorage.setItem('kd_admin', '1');
+    showAdminPanel();
+  } else {
+    showToast('Wrong password');
+  }
+}
+
+function showAdminPanel() {
+  document.getElementById('admin-login-wrap').style.display = 'none';
+  document.getElementById('admin-panel').style.display      = 'block';
+  renderAdminTable();
+}
+
+function adminLogout() {
+  sessionStorage.removeItem('kd_admin');
+  document.getElementById('admin-login-wrap').style.display = 'block';
+  document.getElementById('admin-panel').style.display      = 'none';
+  document.getElementById('admin-pass').value = '';
+}
+
+function renderAdminTable() {
+  const data  = getListings();
+  const tbody = document.getElementById('admin-tbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:32px">No listings yet.</td></tr>'; return; }
+  tbody.innerHTML = data.map((d, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${escHtml(d.name)}</td>
+      <td>${escHtml(d.class)}</td>
+      <td>${escHtml(d.subject)}</td>
+      <td>${escHtml(d.book)}</td>
+      <td>${escHtml(d.condition)}</td>
+      <td>${escHtml(d.city)}</td>
+      <td>${escHtml(d.phone)}</td>
+      <td><span class="tag ${d.status==='taken'?'tag-taken':'tag-green'}">${d.status}</span></td>
+      <td><div class="action-btns">
+        ${d.status !== 'taken' ? `<button class="act-btn btn-taken" onclick="adminMarkTaken(${d.id})">Mark taken</button>` : ''}
+        <button class="act-btn btn-delete" onclick="adminDelete(${d.id})">Delete</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function adminMarkTaken(id) {
+  const listings = getListings();
+  const idx      = listings.findIndex(d => d.id === id);
+  if (idx === -1) return;
+  listings[idx].status = 'taken';
+  saveListings(listings);
+
+  // Award 10 pts (in a real app you'd credit the donor's account; here we just add to this device)
+  savePoints(getPoints() + 10);
+
+  // Also fire update to sheet
+  try {
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'markTaken', id })
+    });
+  } catch (e) {}
+
+  renderAdminTable();
+  loadStats();
+  showToast('Marked as taken · +10 pts awarded');
+}
+
+function adminDelete(id) {
+  if (!confirm('Delete this listing permanently?')) return;
+  const listings = getListings().filter(d => d.id !== id);
+  saveListings(listings);
+
+  try {
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'delete', id })
+    });
+  } catch (e) {}
+
+  renderAdminTable();
+  loadStats();
+  showToast('Listing deleted');
+}
+
+// =====================
+// UTIL
+// =====================
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // =====================
 // TOAST
 // =====================
 function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg;
+  const t = document.getElementById('toast');
+  t.textContent = msg;
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 
 // =====================
 // INIT
 // =====================
-loadBooksData();   // 🔥 critical
+loadBooksData();
 loadStats();
-
+updatePts();
 </script>
 </body>
 </html>
