@@ -100,18 +100,36 @@ textarea{resize:vertical;min-height:80px;}
 .cat-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
 .cat-tab{background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 16px;font-size:13px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--muted);}
 .cat-tab:hover,.cat-tab.active{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
+/* POINTS LOOKUP */
+.pts-lookup-box{background:var(--gold-light);border:1px solid #f6d860;border-radius:14px;padding:20px;margin-bottom:24px;}
+.pts-lookup-box h3{font-family:'Instrument Serif',serif;font-size:18px;margin-bottom:4px;color:var(--gold);}
+.pts-lookup-box p{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.pts-lookup-row{display:flex;gap:10px;flex-wrap:wrap;}
+.pts-lookup-row input{flex:1;min-width:180px;}
+.pts-lookup-row button{white-space:nowrap;padding:10px 18px;background:var(--gold-mid);color:#fff;border:none;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;}
+.pts-lookup-row button:hover{background:#d97706;}
+.pts-result{margin-top:12px;padding:12px 16px;background:var(--surface);border-radius:10px;border:1px solid var(--border);font-size:14px;display:none;}
+.pts-result.visible{display:block;}
 /* ADMIN */
 .admin-login{max-width:360px;margin:60px auto;}
 .admin-table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;}
+.admin-toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.admin-toolbar input{flex:1;min-width:200px;max-width:320px;}
+.admin-toolbar select{min-width:140px;}
+.admin-stat-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.admin-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.admin-stat .num{font-family:'Instrument Serif',serif;font-size:24px;color:var(--accent);}
+.admin-stat .lbl{font-size:11px;color:var(--muted);}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-th{text-align:left;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-weight:500;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+th{text-align:left;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-weight:500;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
 td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:var(--bg);}
 .action-btns{display:flex;gap:6px;}
-.act-btn{border:none;border-radius:6px;padding:5px 10px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;}
-.act-btn:hover{opacity:.8;}
+.act-btn{border:none;border-radius:6px;padding:5px 10px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;transition:opacity .15s;}
+.act-btn:hover{opacity:.75;}
 .btn-taken{background:var(--warn-light);color:var(--warn);}
+.btn-restore{background:var(--accent-light);color:var(--accent-dark);}
 .btn-delete{background:var(--danger-light);color:var(--danger);}
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
@@ -124,7 +142,14 @@ tr:hover td{background:var(--bg);}
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--accent-dark);color:#fff;padding:12px 24px;border-radius:99px;font-size:14px;font-weight:500;transition:transform .3s;z-index:999;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
-@media(max-width:600px){.form-grid{grid-template-columns:1fr;}.stats-row{grid-template-columns:1fr 1fr;}.hiw{grid-template-columns:1fr;}.rewards-hero{flex-direction:column;text-align:center;}nav{padding:0 14px;}.page{padding:20px 14px;}}
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* SYNC BADGE */
+.sync-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:99px;}
+.sync-ok{background:var(--accent-light);color:var(--accent-dark);}
+.sync-warn{background:var(--warn-light);color:var(--warn);}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr;}.stats-row{grid-template-columns:1fr 1fr;}.hiw{grid-template-columns:1fr;}.rewards-hero{flex-direction:column;text-align:center;}nav{padding:0 14px;}.page{padding:20px 14px;}.admin-stat-bar{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
@@ -157,9 +182,9 @@ tr:hover td{background:var(--bg);}
     </div>
   </div>
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">books listed</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-available">0</div><div class="stat-label">available now</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-taken">0</div><div class="stat-label">books donated</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-label">books listed</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-available">—</div><div class="stat-label">available now</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-taken">—</div><div class="stat-label">books donated</div></div>
   </div>
 </div>
 
@@ -214,6 +239,18 @@ tr:hover td{background:var(--bg);}
       <div class="lbl">your points</div>
     </div>
   </div>
+
+  <!-- Points lookup by phone -->
+  <div class="pts-lookup-box">
+    <h3>⭐ Check your points</h3>
+    <p>Enter your WhatsApp number to see how many points you've earned from donations.</p>
+    <div class="pts-lookup-row">
+      <input type="tel" id="lookup-phone" placeholder="Your 10-digit WhatsApp number" maxlength="10"/>
+      <button onclick="lookupPoints()">Check points</button>
+    </div>
+    <div class="pts-result" id="pts-result"></div>
+  </div>
+
   <div class="hiw">
     <div class="hiw-card"><div class="hiw-icon">📚</div><div class="hiw-title">1. Donate</div><div class="hiw-desc">List your old 9th–12th book on KitabDaan</div></div>
     <div class="hiw-card"><div class="hiw-icon">✅</div><div class="hiw-title">2. Book gets taken</div><div class="hiw-desc">Admin marks it as taken — you get 10 points</div></div>
@@ -241,15 +278,61 @@ tr:hover td{background:var(--bg);}
       </div>
     </div>
   </div>
+
   <div id="admin-panel" style="display:none">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
       <h2 style="font-family:'Instrument Serif',serif">All listings</h2>
-      <button class="btn btn-outline" onclick="adminLogout()" style="font-size:13px">Logout</button>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span id="sync-badge" class="sync-badge sync-ok">● Live</span>
+        <button class="btn btn-outline" onclick="refreshAdmin()" style="font-size:13px">↻ Refresh</button>
+        <button class="btn btn-outline" onclick="adminLogout()" style="font-size:13px">Logout</button>
+      </div>
     </div>
+
+    <!-- Admin stats -->
+    <div class="admin-stat-bar">
+      <div class="admin-stat"><div class="num" id="a-total">—</div><div class="lbl">Total listings</div></div>
+      <div class="admin-stat"><div class="num" id="a-avail">—</div><div class="lbl">Available</div></div>
+      <div class="admin-stat"><div class="num" id="a-taken">—</div><div class="lbl">Taken</div></div>
+      <div class="admin-stat"><div class="num" id="a-pts">—</div><div class="lbl">Points awarded</div></div>
+    </div>
+
+    <!-- Admin filters -->
+    <div class="admin-toolbar">
+      <input id="admin-search" placeholder="Search name, book, city, phone..." oninput="renderAdminTable()"/>
+      <select id="admin-filter-status" onchange="renderAdminTable()">
+        <option value="">All statuses</option>
+        <option value="available">Available</option>
+        <option value="taken">Taken</option>
+      </select>
+      <select id="admin-filter-class" onchange="renderAdminTable()">
+        <option value="">All classes</option>
+        <option>9</option><option>10</option><option>11</option><option>12</option>
+      </select>
+    </div>
+
     <div class="admin-table-wrap">
-      <table><thead><tr><th>#</th><th>Name</th><th>Class</th><th>Subject</th><th>Book</th><th>Condition</th><th>City</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="admin-tbody"></tbody></table>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Class</th>
+            <th>Subject</th>
+            <th>Book</th>
+            <th>Condition</th>
+            <th>City</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Pts&nbsp;Given</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
     </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:right" id="admin-count-label"></p>
   </div>
 </div>
 
@@ -266,20 +349,34 @@ tr:hover td{background:var(--bg);}
   </div>
 </div>
 
+<!-- Delete confirm modal -->
+<div class="modal-overlay" id="del-modal">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <h3>Delete listing?</h3>
+    <p>This will permanently remove the listing. This action cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeDelModal()">Cancel</button>
+      <button class="btn" style="background:var(--danger);color:#fff;border-color:var(--danger);" id="del-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // =====================
-// CONFIG
+// CONFIG — update SHEET_URL after deploying the Google Apps Script
 // =====================
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbw9Gn-SO5_hZcIuszfF1ciOCf0ZjMMbTc49eBpIDX4j8uvy9Xwjd88dLmF2QW02AB2AxA/exec";
-const ADMIN_PASSWORD = "kitabdaan2024"; // ← change this to your real password
+const ADMIN_PASSWORD = "kitabdaan2024"; // ← change this in your local file, do NOT commit the real password
 
 // =====================
 // GLOBALS
 // =====================
 let BD = {};
 let allListings = [];
+let adminListings = []; // all raw listings for admin view
 
 // =====================
 // REWARDS CATALOGUE
@@ -291,20 +388,17 @@ const REWARDS_CATALOGUE = [
   { id:'r4', title:'Wings of Fire', author:'APJ Abdul Kalam', pts:30, emoji:'🔥', cat:'biography', bg:'#fff1f2' },
   { id:'r5', title:'The Diary of a Young Girl', author:'Anne Frank', pts:25, emoji:'📖', cat:'biography', bg:'#faf5ff' },
   { id:'r6', title:'Rich Dad Poor Dad', author:'Robert Kiyosaki', pts:40, emoji:'💰', cat:'selfhelp', bg:'#fef9ec' },
-  { id:'r7', title:'The Hitchhiker\'s Guide', author:'Douglas Adams', pts:30, emoji:'🚀', cat:'fiction', bg:'#eff6ff' },
-  { id:'r8', title:'Surely You\'re Joking, Mr. Feynman', author:'Richard Feynman', pts:35, emoji:'🧪', cat:'science', bg:'#e8f4ee' },
+  { id:'r7', title:"The Hitchhiker's Guide", author:'Douglas Adams', pts:30, emoji:'🚀', cat:'fiction', bg:'#eff6ff' },
+  { id:'r8', title:"Surely You're Joking, Mr. Feynman", author:'Richard Feynman', pts:35, emoji:'🧪', cat:'science', bg:'#e8f4ee' },
 ];
 
 // =====================
-// STORAGE HELPERS
+// STORAGE HELPERS (local fallback + per-device points)
 // =====================
-const getListings = () => JSON.parse(localStorage.getItem('kd_listings') || '[]');
-const saveListings = d => localStorage.setItem('kd_listings', JSON.stringify(d));
-const getPoints = () => parseInt(localStorage.getItem('kd_pts') || '0');
-const savePoints = p => {
-  localStorage.setItem('kd_pts', p);
-  updatePts();
-};
+const getListings    = () => JSON.parse(localStorage.getItem('kd_listings') || '[]');
+const saveListings   = d  => localStorage.setItem('kd_listings', JSON.stringify(d));
+const getPoints      = () => parseInt(localStorage.getItem('kd_pts') || '0');
+const savePoints     = p  => { localStorage.setItem('kd_pts', p); updatePts(); };
 
 // =====================
 // UPDATE POINTS UI
@@ -322,10 +416,11 @@ function updatePts() {
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  if (id === 'browse') loadListings();
-  if (id === 'home') loadStats();
+  window.scrollTo(0, 0);
+  if (id === 'browse')  loadListings();
+  if (id === 'home')    loadStats();
   if (id === 'rewards') { updatePts(); renderRewards('all'); }
-  if (id === 'admin') renderAdminIfLoggedIn();
+  if (id === 'admin')   renderAdminIfLoggedIn();
 }
 
 // =====================
@@ -336,78 +431,47 @@ async function loadBooksData() {
     const clsSelect = document.getElementById('f-class');
     clsSelect.innerHTML = '<option>Loading...</option>';
     clsSelect.disabled = true;
-
     const res = await fetch('books.json');
     if (!res.ok) throw new Error('fetch failed');
     BD = await res.json();
-
-    clsSelect.innerHTML = `
-      <option value="">Select class</option>
-      <option>9</option><option>10</option><option>11</option><option>12</option>
-    `;
+    clsSelect.innerHTML = `<option value="">Select class</option><option>9</option><option>10</option><option>11</option><option>12</option>`;
     clsSelect.disabled = false;
-    console.log('Books loaded ✅');
   } catch (e) {
-    console.error('Error loading books.json', e);
-    // fallback: re-enable with empty BD so user sees a friendly message
     const clsSelect = document.getElementById('f-class');
-    clsSelect.innerHTML = `
-      <option value="">Select class</option>
-      <option>9</option><option>10</option><option>11</option><option>12</option>
-    `;
+    clsSelect.innerHTML = `<option value="">Select class</option><option>9</option><option>10</option><option>11</option><option>12</option>`;
     clsSelect.disabled = false;
     showToast('Could not load book list — check your connection');
   }
 }
 
 // =====================
-// SUBJECT DROPDOWN
+// SUBJECT / BOOK DROPDOWNS
 // =====================
 function updateSubjects() {
   const cls = document.getElementById('f-class').value;
   const sub = document.getElementById('f-subject');
   const bk  = document.getElementById('f-book');
-
   sub.innerHTML = '<option value="">Select subject</option>';
   bk.innerHTML  = '<option value="">Select book</option>';
-
-  if (!cls || !BD[cls]) {
-    sub.disabled = true;
-    bk.disabled  = true;
-    return;
-  }
-
-  sub.disabled = false;
-  bk.disabled  = true;
-
+  if (!cls || !BD[cls]) { sub.disabled = true; bk.disabled = true; return; }
+  sub.disabled = false; bk.disabled = true;
   for (let s in BD[cls]) {
     const opt = document.createElement('option');
-    opt.value = s;
-    opt.textContent = s;
+    opt.value = s; opt.textContent = s;
     sub.appendChild(opt);
   }
 }
 
-// =====================
-// BOOK DROPDOWN
-// =====================
 function updateBooks() {
   const cls = document.getElementById('f-class').value;
   const sub = document.getElementById('f-subject').value;
   const bk  = document.getElementById('f-book');
-
   bk.innerHTML = '<option value="">Select book</option>';
-
-  if (!cls || !sub || !BD[cls] || !BD[cls][sub]) {
-    bk.disabled = true;
-    return;
-  }
-
+  if (!cls || !sub || !BD[cls] || !BD[cls][sub]) { bk.disabled = true; return; }
   bk.disabled = false;
   BD[cls][sub].forEach(b => {
     const opt = document.createElement('option');
-    opt.value = b;
-    opt.textContent = b;
+    opt.value = b; opt.textContent = b;
     bk.appendChild(opt);
   });
 }
@@ -436,60 +500,73 @@ async function submitDonation() {
     id: Date.now(),
     name, phone,
     class: cls,
-    subject, book,
-    condition, city, note,
+    subject, book, condition, city, note,
     status: 'available',
+    pointsGiven: false,
     date: new Date().toLocaleDateString('en-IN')
   };
 
   const btn = document.getElementById('donate-btn');
   btn.disabled = true;
-  btn.textContent = 'Submitting…';
+  btn.innerHTML = '<span class="spinner"></span>Submitting…';
 
-  // Send to Google Sheet (fire-and-forget; no-cors so no JSON response expected)
   try {
     await fetch(SHEET_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(data)
+      body: JSON.stringify({ action: 'add', ...data })
     });
-  } catch (e) {
-    // silently continue — local save is the fallback
-  }
+  } catch (e) { /* silent */ }
 
   const listings = getListings();
   listings.unshift(data);
   saveListings(listings);
 
-  // Reset form
   ['f-name','f-phone','f-city','f-note'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-class').value = '';
   document.getElementById('f-condition').value = '';
-  updateSubjects(); // resets subject + book dropdowns
+  updateSubjects();
 
   btn.disabled = false;
   btn.textContent = 'List my book for free';
-
   showToast('📚 Book listed successfully!');
   loadStats();
 }
 
 // =====================
-// LOAD LISTINGS (browse page)
+// LOAD LISTINGS (browse + home stats)
 // =====================
 async function loadListings() {
   document.getElementById('books-grid').innerHTML = '<div class="loading">Loading listings…</div>';
   try {
-    const r = await fetch(SHEET_URL + '?t=' + Date.now(), { mode: 'cors' });
+    const r = await fetch(SHEET_URL + '?action=getAll&t=' + Date.now());
     if (!r.ok) throw new Error('network');
     allListings = await r.json();
-    saveListings(allListings); // cache locally
+    saveListings(allListings);
   } catch (e) {
-    allListings = getListings(); // fall back to localStorage
+    allListings = getListings();
   }
   renderCards(allListings);
   populateBrowseSubjects();
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch(SHEET_URL + '?action=getAll&t=' + Date.now());
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    saveListings(data);
+    setStats(data);
+  } catch (e) {
+    setStats(getListings());
+  }
+}
+
+function setStats(data) {
+  document.getElementById('stat-total').textContent     = data.length;
+  document.getElementById('stat-available').textContent = data.filter(d => d.status !== 'taken').length;
+  document.getElementById('stat-taken').textContent     = data.filter(d => d.status === 'taken').length;
 }
 
 // =====================
@@ -498,7 +575,6 @@ async function loadListings() {
 function renderCards(list) {
   const grid  = document.getElementById('books-grid');
   const count = document.getElementById('browse-count');
-
   const available = list.filter(d => d.status !== 'taken');
   count.textContent = available.length + ' available';
   count.className   = 'tag ' + (available.length > 0 ? 'tag-green' : 'tag-taken');
@@ -526,7 +602,7 @@ function renderCards(list) {
           <span class="card-date">${escHtml(d.date||'')}</span>
         </div>
         ${d.status !== 'taken' ? `<a class="wa-btn" href="${waLink}" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.845L.057 23.885l6.194-1.452A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-4.989-1.365l-.358-.213-3.676.862.924-3.576-.234-.371A9.818 9.818 0 112 12c0-5.42 4.398-9.818 9.818-9.818 5.421 0 9.819 4.398 9.819 9.818 0 5.421-4.398 9.818-9.819 9.818z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.845L.057 23.885l6.194-1.452A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12-0zm0 21.818a9.818 9.818 0 01-4.989-1.365l-.358-.213-3.676.862.924-3.576-.234-.371A9.818 9.818 0 112 12c0-5.42 4.398-9.818 9.818-9.818 5.421 0 9.819 4.398 9.819 9.818 0 5.421-4.398 9.818-9.819 9.818z"/></svg>
           Contact on WhatsApp
         </a>` : ''}
       </div>`;
@@ -534,7 +610,7 @@ function renderCards(list) {
 }
 
 // =====================
-// FILTERS (browse)
+// BROWSE FILTERS
 // =====================
 function populateBrowseSubjects() {
   const sel = document.getElementById('filter-subject');
@@ -546,24 +622,13 @@ function applyFilters() {
   const cls    = document.getElementById('filter-class').value;
   const sub    = document.getElementById('filter-subject').value;
   const search = document.getElementById('filter-search').value.toLowerCase();
-
   const filtered = allListings.filter(d => {
     if (cls && d.class != cls) return false;
     if (sub && d.subject !== sub) return false;
-    if (search && !d.book.toLowerCase().includes(search) && !d.city.toLowerCase().includes(search)) return false;
+    if (search && !d.book?.toLowerCase().includes(search) && !d.city?.toLowerCase().includes(search)) return false;
     return true;
   });
   renderCards(filtered);
-}
-
-// =====================
-// STATS
-// =====================
-function loadStats() {
-  const data = getListings();
-  document.getElementById('stat-total').textContent     = data.length;
-  document.getElementById('stat-available').textContent = data.filter(d => d.status !== 'taken').length;
-  document.getElementById('stat-taken').textContent     = data.filter(d => d.status === 'taken').length;
 }
 
 // =====================
@@ -619,10 +684,52 @@ function doRedeem(id) {
 }
 
 // =====================
+// POINTS LOOKUP (by phone → sheet query)
+// =====================
+async function lookupPoints() {
+  const phone = document.getElementById('lookup-phone').value.trim();
+  const box   = document.getElementById('pts-result');
+  if (!/^\d{10}$/.test(phone)) { showToast('Enter a valid 10-digit number'); return; }
+
+  box.style.display = 'block';
+  box.className = 'pts-result visible';
+  box.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:var(--accent)"></span> Checking…';
+
+  try {
+    const r = await fetch(`${SHEET_URL}?action=getPoints&phone=${phone}&t=${Date.now()}`);
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    // data = { points: 30, takenBooks: [{book,date}, ...] }
+    const pts = data.points || 0;
+    const taken = data.takenBooks || [];
+    // Also update local points if this matches
+    if (pts > getPoints()) savePoints(pts);
+
+    let html = `<strong>⭐ ${pts} points earned</strong> for phone ${phone}`;
+    if (taken.length) {
+      html += `<br/><span style="font-size:12px;color:var(--muted)">Books taken: ${taken.map(b => escHtml(b.book)).join(', ')}</span>`;
+    } else if (pts === 0) {
+      html += `<br/><span style="font-size:12px;color:var(--muted)">No taken books yet — keep donating!</span>`;
+    }
+    box.innerHTML = html;
+  } catch (e) {
+    // Fallback: search local cache
+    const local = getListings().filter(d => d.phone === phone && d.status === 'taken');
+    const pts   = local.length * 10;
+    box.innerHTML = `<strong>⭐ ~${pts} points</strong> (based on local data — connect to sheet for accurate count)`;
+  }
+}
+
+// =====================
 // MODAL
 // =====================
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
+
+// Delete modal
+let pendingDeleteId = null;
+function closeDelModal() { document.getElementById('del-modal').classList.remove('open'); pendingDeleteId = null; }
+document.getElementById('del-modal').addEventListener('click', e => { if (e.target === document.getElementById('del-modal')) closeDelModal(); });
 
 // =====================
 // ADMIN
@@ -641,10 +748,10 @@ function adminLogin() {
   }
 }
 
-function showAdminPanel() {
+async function showAdminPanel() {
   document.getElementById('admin-login-wrap').style.display = 'none';
   document.getElementById('admin-panel').style.display      = 'block';
-  renderAdminTable();
+  await refreshAdmin();
 }
 
 function adminLogout() {
@@ -654,41 +761,111 @@ function adminLogout() {
   document.getElementById('admin-pass').value = '';
 }
 
+async function refreshAdmin() {
+  const badge = document.getElementById('sync-badge');
+  badge.className = 'sync-badge sync-warn';
+  badge.textContent = '↻ Syncing…';
+
+  try {
+    const r = await fetch(SHEET_URL + '?action=getAll&t=' + Date.now());
+    if (!r.ok) throw new Error();
+    adminListings = await r.json();
+    saveListings(adminListings);
+    badge.className = 'sync-badge sync-ok';
+    badge.textContent = '● Live';
+  } catch (e) {
+    adminListings = getListings();
+    badge.className = 'sync-badge sync-warn';
+    badge.textContent = '⚠ Offline (local data)';
+  }
+
+  renderAdminTable();
+  renderAdminStats();
+}
+
+function renderAdminStats() {
+  const total = adminListings.length;
+  const taken = adminListings.filter(d => d.status === 'taken').length;
+  const avail = total - taken;
+  const pts   = adminListings.filter(d => d.pointsGiven).length * 10;
+  document.getElementById('a-total').textContent = total;
+  document.getElementById('a-avail').textContent = avail;
+  document.getElementById('a-taken').textContent = taken;
+  document.getElementById('a-pts').textContent   = pts;
+
+  // Also update home stats
+  document.getElementById('stat-total').textContent     = total;
+  document.getElementById('stat-available').textContent = avail;
+  document.getElementById('stat-taken').textContent     = taken;
+}
+
 function renderAdminTable() {
-  const data  = getListings();
-  const tbody = document.getElementById('admin-tbody');
-  if (!data.length) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:32px">No listings yet.</td></tr>'; return; }
+  const search  = (document.getElementById('admin-search')?.value || '').toLowerCase();
+  const status  = document.getElementById('admin-filter-status')?.value || '';
+  const cls     = document.getElementById('admin-filter-class')?.value  || '';
+  const tbody   = document.getElementById('admin-tbody');
+
+  let data = adminListings.filter(d => {
+    if (status && d.status !== status) return false;
+    if (cls    && d.class  != cls)    return false;
+    if (search) {
+      const hay = [d.name, d.book, d.city, d.phone, d.subject].join(' ').toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('admin-count-label').textContent = `Showing ${data.length} of ${adminListings.length} listings`;
+
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:32px">No matching listings.</td></tr>';
+    return;
+  }
+
   tbody.innerHTML = data.map((d, i) => `
     <tr>
-      <td>${i + 1}</td>
-      <td>${escHtml(d.name)}</td>
+      <td style="color:var(--muted)">${i + 1}</td>
+      <td><strong>${escHtml(d.name)}</strong></td>
+      <td><a href="https://wa.me/91${escHtml(d.phone)}" target="_blank" style="color:var(--accent);text-decoration:none">${escHtml(d.phone)}</a></td>
       <td>${escHtml(d.class)}</td>
       <td>${escHtml(d.subject)}</td>
-      <td>${escHtml(d.book)}</td>
-      <td>${escHtml(d.condition)}</td>
+      <td style="max-width:180px;white-space:normal">${escHtml(d.book)}</td>
+      <td><span class="pill ${d.condition==='Good'?'pill-good':d.condition==='Acceptable'?'pill-acceptable':'pill-poor'}">${escHtml(d.condition)}</span></td>
       <td>${escHtml(d.city)}</td>
-      <td>${escHtml(d.phone)}</td>
+      <td style="color:var(--muted)">${escHtml(d.date||'')}</td>
       <td><span class="tag ${d.status==='taken'?'tag-taken':'tag-green'}">${d.status}</span></td>
-      <td><div class="action-btns">
-        ${d.status !== 'taken' ? `<button class="act-btn btn-taken" onclick="adminMarkTaken(${d.id})">Mark taken</button>` : ''}
-        <button class="act-btn btn-delete" onclick="adminDelete(${d.id})">Delete</button>
-      </div></td>
+      <td style="text-align:center">${d.pointsGiven ? '<span title="Points awarded" style="color:var(--gold)">⭐ +10</span>' : '<span style="color:#ccc">—</span>'}</td>
+      <td>
+        <div class="action-btns">
+          ${d.status !== 'taken'
+            ? `<button class="act-btn btn-taken" onclick="adminMarkTaken(${d.id})">Mark taken</button>`
+            : `<button class="act-btn btn-restore" onclick="adminRestore(${d.id})">Restore</button>`}
+          <button class="act-btn btn-delete" onclick="openDelModal(${d.id})">Delete</button>
+        </div>
+      </td>
     </tr>`).join('');
 }
 
-function adminMarkTaken(id) {
-  const listings = getListings();
-  const idx      = listings.findIndex(d => d.id === id);
+// =====================
+// ADMIN ACTIONS
+// =====================
+async function adminMarkTaken(id) {
+  const idx = adminListings.findIndex(d => d.id === id);
   if (idx === -1) return;
-  listings[idx].status = 'taken';
-  saveListings(listings);
 
-  // Award 10 pts (in a real app you'd credit the donor's account; here we just add to this device)
+  adminListings[idx].status      = 'taken';
+  adminListings[idx].pointsGiven = true;
+  saveListings(adminListings);
+  renderAdminTable();
+  renderAdminStats();
+
+  // Award 10 pts locally (donor's device won't see it, but tracks on admin device + sheet)
   savePoints(getPoints() + 10);
+  showToast('✅ Marked as taken · +10 pts awarded');
 
-  // Also fire update to sheet
+  // Sync to sheet
   try {
-    fetch(SHEET_URL, {
+    await fetch(SHEET_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -696,18 +873,46 @@ function adminMarkTaken(id) {
     });
   } catch (e) {}
 
-  renderAdminTable();
   loadStats();
-  showToast('Marked as taken · +10 pts awarded');
 }
 
-function adminDelete(id) {
-  if (!confirm('Delete this listing permanently?')) return;
-  const listings = getListings().filter(d => d.id !== id);
-  saveListings(listings);
+async function adminRestore(id) {
+  const idx = adminListings.findIndex(d => d.id === id);
+  if (idx === -1) return;
+
+  adminListings[idx].status      = 'available';
+  adminListings[idx].pointsGiven = false;
+  saveListings(adminListings);
+  renderAdminTable();
+  renderAdminStats();
+  showToast('↩ Listing restored to available');
 
   try {
-    fetch(SHEET_URL, {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'restore', id })
+    });
+  } catch (e) {}
+}
+
+function openDelModal(id) {
+  pendingDeleteId = id;
+  document.getElementById('del-modal').classList.add('open');
+  document.getElementById('del-ok').onclick = () => adminDelete(pendingDeleteId);
+}
+
+async function adminDelete(id) {
+  closeDelModal();
+  adminListings = adminListings.filter(d => d.id !== id);
+  saveListings(adminListings);
+  renderAdminTable();
+  renderAdminStats();
+  showToast('🗑 Listing deleted');
+
+  try {
+    await fetch(SHEET_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -715,9 +920,7 @@ function adminDelete(id) {
     });
   } catch (e) {}
 
-  renderAdminTable();
   loadStats();
-  showToast('Listing deleted');
 }
 
 // =====================
@@ -735,7 +938,7 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(() => t.classList.remove('show'), 3200);
 }
 
 // =====================
@@ -744,6 +947,15 @@ function showToast(msg) {
 loadBooksData();
 loadStats();
 updatePts();
+
+// Secret admin shortcut: click logo 5 times quickly
+let logoClicks = 0, logoTimer;
+document.getElementById('nav-logo').addEventListener('click', () => {
+  logoClicks++;
+  clearTimeout(logoTimer);
+  logoTimer = setTimeout(() => logoClicks = 0, 1500);
+  if (logoClicks >= 5) { logoClicks = 0; showPage('admin'); }
+});
 </script>
 </body>
 </html>
